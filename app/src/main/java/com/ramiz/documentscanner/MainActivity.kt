@@ -13,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -72,7 +75,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ScreenTopBar() {
     TopAppBar(
-        title = { Text(text = "Document Scanner") },
+        title = { Text(text = stringResource(id = R.string.app_name)) },
         colors = topAppBarColors(
             titleContentColor = MaterialTheme.colorScheme.primary,
             containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -92,7 +95,11 @@ private fun ScreenUI(modifier: Modifier = Modifier) {
         if (activityResult.resultCode == ComponentActivity.RESULT_OK) {
             val result = GmsDocumentScanningResult.fromActivityResultIntent(activityResult.data)
             if (result == null) {
-                Toast.makeText(activity, "Document Scanning Failed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    activity,
+                    activity.getString(R.string.error_msg_document_scanning_failed),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@rememberLauncherForActivityResult
             }
             imageUri = extractImageUri(result)
@@ -101,42 +108,53 @@ private fun ScreenUI(modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f))
         AsyncImage(
             modifier = Modifier
-                .size(200.dp)
+                .size(300.dp)
                 .background(Color.LightGray, RoundedCornerShape(14.dp))
                 .clip(RoundedCornerShape(14.dp)),
             model = imageUri,
             contentDescription = "",
             contentScale = ContentScale.FillBounds
         )
-        Button(
-            onClick = {
-                scannerClient.getStartScanIntent(activity)
-                    .addOnSuccessListener { intentSender ->
-                        scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
-                    }
-                    .addOnFailureListener { exception ->
-                        Toast.makeText(activity, exception.message, Toast.LENGTH_SHORT).show()
-                    }
-            }
-        ) {
-            Text(text = "Scan Document")
-        }
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f))
 
-        if (imageUri != null) {
+        Row(
+            modifier = Modifier.padding(vertical = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+        ) {
             Button(
                 onClick = {
-                    shareDocument(activity, imageUri)
+                    scannerClient.getStartScanIntent(activity)
+                        .addOnSuccessListener { intentSender ->
+                            scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+                        }
+                        .addOnFailureListener { exception ->
+                            Toast.makeText(activity, exception.message, Toast.LENGTH_SHORT).show()
+                        }
                 }
             ) {
-                Text(text = "Share Document")
+                Text(text = stringResource(R.string.button_label_scan_document))
+            }
+
+            if (imageUri != null) {
+                Button(
+                    onClick = {
+                        shareDocument(activity, imageUri)
+                    }
+                ) {
+                    Text(text = stringResource(R.string.button_label_share_document))
+                }
             }
         }
     }
@@ -153,7 +171,7 @@ private fun shareDocument(activity: ComponentActivity, imageUri: Uri?) {
         type = "image/*"
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    activity.startActivity(shareIntent)
+    activity.startActivity(Intent.createChooser(shareIntent, "Share Document"))
 }
 
 private fun extractImageUri(scannerResult: GmsDocumentScanningResult): Uri? {
@@ -176,6 +194,6 @@ private fun documentScanner(): GmsDocumentScanner {
 @Composable
 fun GreetingPreview() {
     DocumentScannerTheme {
-
+        ScreenUI()
     }
 }
