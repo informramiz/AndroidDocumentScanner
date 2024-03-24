@@ -64,6 +64,9 @@ dependencies {
     // Document Scanner
     implementation(libs.mlkit.document.scanner)
 
+    // Image Loader
+    implementation(libs.coil.image.loader)
+
     // Test and Debug Libraries
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
