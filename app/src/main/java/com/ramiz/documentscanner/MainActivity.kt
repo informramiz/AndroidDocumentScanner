@@ -119,7 +119,7 @@ private fun ScreenUI(modifier: Modifier = Modifier) {
         AsyncImage(
             modifier = Modifier
                 .size(300.dp)
-                .background(Color.LightGray, RoundedCornerShape(14.dp))
+                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp))
                 .clip(RoundedCornerShape(14.dp)),
             model = imageUri,
             contentDescription = "",
