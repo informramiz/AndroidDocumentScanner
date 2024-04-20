@@ -1,7 +1,7 @@
 # AndroidDocumentScanner
 An App that allows you to scan documents easily without asking for any kind of permission. This app does not even ask for internet permission and no data leaves your phone as all processing happens on device.
 
-![demo](data/Demo Video.mp4)
+![demo](data/Demo-Video.mp4)
 
 ## Implementation Details
 
